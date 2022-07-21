@@ -1,0 +1,63 @@
+# Base file for Docker Compose
+#
+# In a local test environment, the docker-compose.override.yml will
+# also be loaded, and override some settings of this file.
+# It's also possible to use the -f option of Docker Compose to select which files to use.
+
+version: "3.7"
+services:
+  # The frontend service:
+  frontend:
+    build: ./frontend
+    image: frontend
+    depends_on:
+      - backend
+    restart: "unless-stopped"
+    volumes: # To ease the development, we mount some local frontend directories as volumes:
+      - './frontend:/app'
+      # - '/app/node_modules'
+    environment:
+      # You can override the URL for the backend, as seen from the frontend, in your docker-compose.override.yml
+      - VUE_APP_BACKEND_URL=http://localhost:5000/
+    ports:
+      - 8088:8080
+
+  # The backend service:
+  backend:
+    build: ./backend
+    image: backend
+    depends_on:
+      - db
+    restart: "unless-stopped"
+    # We need to specify the command to run inside the container:
+    command: uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
+    environment:
+      - DATABASE_URL=postgres://recordpool:Kae4Apho@db:5432/recordpooldb
+      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+    ports:
+      - 5000:5000
+
+  # The PostgreSQL database:
+  db:
+    image: postgres:14
+    restart: "unless-stopped"
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=recordpool
+      - POSTGRES_PASSWORD=Kae4Apho
+      - POSTGRES_DB=recordpooldb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  # A tool to administer the database: (optional)
+  adminer:
+    image: adminer:4-standalone
+    restart: "unless-stopped"
+    depends_on:
+      - db
+    # Ports are exposed in docker-compose.override.yml
+
+volumes:
+  postgres_data:
+

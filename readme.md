@@ -1,4 +1,7 @@
 ﻿![logo](open-record-pool-logo.png)
+![License](https://img.shields.io/github/license/walachewaka/open-record-pool)
+![Docker Pulls](https://img.shields.io/docker/pulls/walachewaka/open-record-pool)
+![Discord Chat](https://img.shields.io/discord/1002127282552442910)
 
 **Open-Record-Pool**
 

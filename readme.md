@@ -1,4 +1,4 @@
-﻿![logo](open record-pool logo.png)
+﻿![logo](open-record-pool-logo.png)
 
 **Open-Record-Pool**
 

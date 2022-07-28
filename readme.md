@@ -1,4 +1,4 @@
-﻿![logo](open-record-pool-logo.png)
+﻿![logo](open-record-pool-logo.png) =250x250
 
 **Open-Record-Pool**
 

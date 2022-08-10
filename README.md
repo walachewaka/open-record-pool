@@ -9,7 +9,7 @@ Open-Record-Pool is a self-hosted open-source web app that allows users and more
 
 **Getting Started**
 
-- Download/Installation
+- [Download/Installation](https://github.com/walachewaka/open-record-pool/blob/dev/INSTALL.md)
 - Donate
 
 **Features**

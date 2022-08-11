@@ -34,6 +34,8 @@ services:
     environment:
       - DATABASE_URL=postgres://recordpool:Kae4Apho@db:5432/recordpooldb
       - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      # This is typically overriden in docker-compose.override.yml:
+      - ALLOW_ORIGINS=http://localhost:8088
     ports:
       - 5000:5000
 
@@ -56,7 +58,9 @@ services:
     restart: "unless-stopped"
     depends_on:
       - db
-    # Ports are exposed in docker-compose.override.yml
+    # Ports can be exposed in docker-compose.override.yml
+    # ports:
+    #   - "8087:8080"
 
 volumes:
   postgres_data:

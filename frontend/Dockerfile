@@ -35,13 +35,14 @@ RUN npm install --global \
 RUN npm config --global set cache /tmp
 
 # ENV PATH /app/node_modules/.bin:$PATH
-ENV VUE_APP_BACKEND_URL http://localhost:5000
+ENV VUE_APP_BACKEND_URL=http://localhost:5000
 
 WORKDIR /app
 
 # Copy the package.json files and install npm dependencies:
 COPY package.json .
 COPY package-lock.json .
+ENV NODE_ENV=development
 RUN npm install
 
 COPY .eslintrc.js .
@@ -49,10 +50,10 @@ COPY .eslintrc.js .
 # Avoid permission denied errors:
 RUN chown -R 1000:1000 "/root/.npm"
 
-# TODO: Copy the frontend files in the Docker image, instead of mounting a shared volume:
+# Copy the frontend files in the Docker image
 # Copy all the Vue.js and HTML files:
-# ADD src ./src
-# ADD public ./public
+ADD src ./src
+ADD public ./public
 
 # We use npm to run the Vue.js project, for now:
 # TODO: Use nginx for production

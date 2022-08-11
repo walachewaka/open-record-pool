@@ -1,0 +1,27 @@
+# Example override file for Docker Compose
+#
+# You can override some environment variables and other things from
+# you docker-compose.yml file. Simply copy this example file and modify it:
+# 
+# ```
+# cp docker-compose.override.example.yml docker-compose.override.yml
+# edit docker-compose.override.yml
+# ```
+
+version: "3.7"
+services:
+  frontend:
+    environment:
+      # Specify the host of the backend:
+      - VUE_APP_BACKEND_URL=http://localhost:5000/
+
+  backend:
+    environment:
+      # Allow the frontend to access the backend:
+      - ALLOW_ORIGINS=http://localhost:8088
+
+  adminer:
+    ports:
+      # Expose the adminer port, to ease database administration:
+      - "8087:8080"
+

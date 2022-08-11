@@ -1,6 +1,8 @@
 """
 Main entry point of our backend service.
 """
+import os
+from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
@@ -22,9 +24,22 @@ app_name = 'open-record-pool-backend'
 
 app = FastAPI()
 
+
+def parse_allowed_origins() -> List[str]:
+    """
+    Get the env var for the allowed origins:
+    split this into a list of multiple allowed origins.
+    Example:
+    ALLOW_ORIGINS=http://localhost:8088,http://192.168.0.1:8088
+    """
+    ret = os.environ.get("ALLOW_ORIGINS", "http://localhost:8088")
+    ret = ret.split(",")
+    return ret
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8088"],
+    allow_origins=parse_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

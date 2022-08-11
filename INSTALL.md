@@ -9,9 +9,10 @@ docker-compose up -d --build
 ## Configuration
 You can override any setting by creating a file called docker-compose.override.yml at the root of the project.
 (this directory)
+Simply copy this example file and modify it:
 
 ```
-touch docker-compose.override.yml
+cp docker-compose.override.example.yml docker-compose.override.yml
 edit docker-compose.override.yml
 ```
 

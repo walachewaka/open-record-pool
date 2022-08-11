@@ -32,8 +32,11 @@ def parse_allowed_origins() -> List[str]:
     Example:
     ALLOW_ORIGINS=http://localhost:8088,http://192.168.0.1:8088
     """
-    ret = os.environ.get("ALLOW_ORIGINS", "http://localhost:8088")
-    ret = ret.split(",")
+    allow_origins = os.environ.get("ALLOW_ORIGINS", "http://localhost:8088")
+    ret = allow_origins.split(",")
+    ret.append("http://localhost:8088")
+    # Remove duplicates, if any:
+    ret = list(set(ret))
     return ret
 
 

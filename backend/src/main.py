@@ -18,7 +18,7 @@ from src.routes import notes
 from src.routes import users
 
 __version__ = '0.1.0-snapshot'
-app_name = 'backend'
+app_name = 'open-record-pool-backend'
 
 app = FastAPI()
 
@@ -38,7 +38,7 @@ register_tortoise(app, config=TORTOISE_ORM, generate_schemas=False)
 
 @app.get("/")
 def home():
-    return "This is {app_name} {__version__}"
+    return f"This is {app_name} {__version__}"
 
 
 @app.get("/ping")

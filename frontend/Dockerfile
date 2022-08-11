@@ -29,8 +29,7 @@ FROM node:16-alpine
 
 # Update npm and install vue cli:
 RUN npm install --global \
-    npm@8.16.0 \
-    @vue/cli@4.5.13
+    npm@8.16.0
 
 # To avoid permission errors:
 RUN npm config --global set cache /tmp

@@ -13,9 +13,9 @@ services:
     depends_on:
       - backend
     restart: "unless-stopped"
-    volumes: # To ease the development, we mount some local frontend directories as volumes:
-      - './frontend:/app'
-      # - '/app/node_modules'
+    # volumes: # To ease the development, we mount some local frontend directories as volumes:
+    #   - './frontend/src:/app/src'
+    #   - './frontend/public:/app/public'
     environment:
       # You can override the URL for the backend, as seen from the frontend, in your docker-compose.override.yml
       - VUE_APP_BACKEND_URL=http://localhost:5000/

@@ -27,6 +27,9 @@ ADD src/ src/
 RUN flake8 --ignore=E501,F401,W391,E261,E402 .
 # TODO: run black
 
+# We load the music from the /music path:
+VOLUME ["/music"]
+
 EXPOSE 5000
 
 # We need to specify the command to run inside the container in the docker-compose.yml file.

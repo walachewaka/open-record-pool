@@ -18,6 +18,7 @@ Tortoise.init_models(["src.database.models"], "models")
 
 from src.routes import notes
 from src.routes import users
+from src.extract import musicfiles
 
 __version__ = '0.1.0-snapshot'
 app_name = 'open-record-pool-backend'
@@ -40,6 +41,7 @@ def parse_allowed_origins() -> List[str]:
     return ret
 
 
+# Setup CORS:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=parse_allowed_origins(),
@@ -50,13 +52,22 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(notes.router)
 
-
+# Setup the database:
 register_tortoise(app, config=TORTOISE_ORM, generate_schemas=False)
 
 
+# Setup the endpoints:
 @app.get("/")
 def home():
     return f"This is {app_name} {__version__}"
+
+
+@app.get("/music")
+async def music():
+    # Asynchronously load the informations from the music files:
+    # TODO: Move this to a background task that is done only once.
+    all_info = await musicfiles.list_all_music_files_info()
+    return all_info
 
 
 @app.get("/ping")

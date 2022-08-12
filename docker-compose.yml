@@ -38,6 +38,11 @@ services:
       - ALLOW_ORIGINS=http://localhost:8088
     ports:
       - 5000:5000
+    volumes:
+      - type: volume
+        source: music-data
+        target: /music
+        read_only: true
 
   # The PostgreSQL database:
   db:
@@ -64,4 +69,11 @@ services:
 
 volumes:
   postgres_data:
+
+  music-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /tmp/music
 

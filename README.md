@@ -5,7 +5,7 @@
 
 **Open-Record-Pool**
 
-Open-Record-Pool is a self-hosted open-source web app that allows users and more importantly DJs with large collections to keep track of their library in a structured manner. This tool can be used to dynamically create playlists using Spotify’s API, manage song metadata with the help of PuddleTag, manage user’s access to your library but also share your playlists with others.
+Open-Record-Pool is a self-hosted open-source web app that allows users and more importantly DJs with large collections to keep track of their library in a structured manner. This tool can be used to dynamically create playlists using Spotify’s API, manage song metadata with the help of Mutagen, manage user’s access to your library but also share your playlists with others.
 
 **Getting Started**
 

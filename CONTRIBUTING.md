@@ -11,5 +11,5 @@ When we do a release, developers should update the version number at the followi
 Then, we update the CHANGELOG.md file with the release notes.
 
 ## Installation instructions
-See INSTALL.md
+See [INSTALL.md](https://github.com/walachewaka/open-record-pool/blob/dev/INSTALL.md)
 

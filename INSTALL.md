@@ -16,6 +16,8 @@ cp docker-compose.override.example.yml docker-compose.override.yml
 edit docker-compose.override.yml
 ```
 
+Make sure to set up the path to your music in the docker-compose.override.yml file.
+
 ## Apply the database migrations:
 You need to run this at least once, so that the backend service works properly.
 This will create the database tables and insert any data we need to get started.

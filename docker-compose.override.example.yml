@@ -25,3 +25,9 @@ services:
       # Expose the adminer port, to ease database administration:
       - "8087:8080"
 
+volumes:
+  music-data:
+    driver_opts:
+      # Change this for the path to your music files:
+      device: /path/to/your/music
+

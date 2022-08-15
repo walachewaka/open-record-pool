@@ -29,5 +29,7 @@ volumes:
   music-data:
     driver_opts:
       # Change this for the path to your music files:
+      o: bind
+      type: none
       device: /path/to/your/music
 

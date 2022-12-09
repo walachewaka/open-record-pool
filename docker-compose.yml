@@ -4,7 +4,19 @@
 # also be loaded, and override some settings of this file.
 # It's also possible to use the -f option of Docker Compose to select which files to use.
 
+
 version: "3.7"
+
+volumes:
+  postgres_data:
+
+  music-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /tmp/music
+
 services:
   # The frontend service:
   frontend:
@@ -38,11 +50,6 @@ services:
       - ALLOW_ORIGINS=http://localhost:8088
     ports:
       - 5000:5000
-    volumes:
-      - type: volume
-        source: music-data
-        target: /music
-        read_only: true
 
   # The PostgreSQL database:
   db:
@@ -66,14 +73,3 @@ services:
     # Ports can be exposed in docker-compose.override.yml
     # ports:
     #   - "8087:8080"
-
-volumes:
-  postgres_data:
-
-  music-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /tmp/music
-

@@ -1,8 +1,8 @@
-<template>
-  <div id="app">
-    <NavBar />
-    <div class="main container">
-      <router-view/>
+<template></template>
+  <div id="app"></div>
+    <NavBar></NavBar>
+    <div class="main container"></div>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -28,4 +28,3 @@ export default {
   padding-top: 5em;
 }
 </style>
-

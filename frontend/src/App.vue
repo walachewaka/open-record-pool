@@ -1,8 +1,8 @@
-<template></template>
-  <div id="app"></div>
-    <NavBar></NavBar>
-    <div class="main container"></div>
-      <router-view></router-view>
+<template>
+  <div id="app">
+    <NavBar />
+    <div class="main container">
+      <router-view />
     </div>
   </div>
 </template>

@@ -15,8 +15,12 @@
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+    <p v-if="errorMessage">{{ errorMessage }}</p>
   </section>
 </template>
+
+
+
 
 <script>
 import { mapActions } from 'vuex';
@@ -29,6 +33,7 @@ export default {
         full_name: '',
         password: '',
       },
+      errorMessage: '',
     };
   },
   methods: {
@@ -38,7 +43,7 @@ export default {
         await this.register(this.user);
         this.$router.push('/dashboard');
       } catch (error) {
-        throw 'Username already exists. Please try again.';
+        this.errorMessage = 'Username already exists. Please try again.';
       }
     },
   },

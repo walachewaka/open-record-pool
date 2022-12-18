@@ -4,7 +4,7 @@
       <h1>Add new note</h1>
       <hr />
       <br />
-      <form>
+      <form @submit.prevent="submit">
         <div class="mb-3">
           <label for="title" class="form-label">Title:</label>
           <input
@@ -32,7 +32,7 @@
       <hr />
       <br />
       <div v-if="notes.length">
-        <div v-for="note in notes" class="notes">
+        <div v-for="note in notes" v-bind:key="note.id" class="notes">
           <div class="card" style="width: 18rem">
             <div class="card-body">
               <ul>
@@ -51,6 +51,7 @@
     </section>
   </div>
 </template>
+
 <script>
   import { mapGetters, mapActions } from "vuex";
   export default {
@@ -69,10 +70,27 @@
     computed: {
       ...mapGetters({ notes: "stateNotes" }),
     },
+    watch: {
+      form: {
+        handler(newForm) {
+          if (newForm.title === '' && newForm.content === '') {
+            this.form = {
+              title: '',
+              content: '',
+            }
+          }
+        },
+        deep: true,
+      },
+    },
     methods: {
       ...mapActions(["createNote"]),
       async submit() {
-        await this.createNote(this.form);
+        try {
+          await this.createNote(this.form);
+        } catch (error) {
+          console.error(error);
+        }
       },
     },
   };

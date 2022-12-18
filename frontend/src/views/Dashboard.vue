@@ -2,7 +2,9 @@
   <div>
     <section>
       <h1>Add new note</h1>
-      <hr />
+      <hr
+        class="some-class"
+      >
       <br />
       <form @submit.prevent="submit">
         <div class="mb-3">
@@ -29,7 +31,9 @@
     <br />
     <section>
       <h1>Notes</h1>
-      <hr />
+      <hr
+        class="some-class"
+      >
       <br />
       <div v-if="notes.length">
         <div v-for="note in notes" v-bind:key="note.id" class="notes">
@@ -45,7 +49,7 @@
           <br />
         </div>
       </div>
-      <div v-else="">
+      <div v-else>
         <p>Nothing to see. Check back later.</p>
       </div>
     </section>

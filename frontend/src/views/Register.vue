@@ -2,20 +2,51 @@
   <section>
     <form @submit.prevent="submit">
       <div class="mb-3">
-        <label for="username" class="form-label">Username:</label>
-        <input type="text" name="username" v-model="user.username" class="form-control" />
+        <label
+          for="username"
+          class="form-label"
+        >Username:</label>
+        <input
+          v-model="user.username"
+          type="text"
+          name="username"
+          class="form-control"
+        >
       </div>
       <div class="mb-3">
-        <label for="full_name" class="form-label">Full Name:</label>
-        <input type="text" name="full_name" v-model="user.full_name" class="form-control" />
+        <label
+          for="full_name"
+          class="form-label"
+        >Full Name:</label>
+        <input
+          v-model="user.full_name"
+          type="text"
+          name="full_name"
+          class="form-control"
+        >
       </div>
       <div class="mb-3">
-        <label for="password" class="form-label">Password:</label>
-        <input type="password" name="password" v-model="user.password" class="form-control" />
+        <label
+          for="password"
+          class="form-label"
+        >Password:</label>
+        <input
+          v-model="user.password"
+          type="password"
+          name="password"
+          class="form-control"
+        >
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Submit
+      </button>
     </form>
-    <p v-if="errorMessage">{{ errorMessage }}</p>
+    <p v-if="errorMessage">
+      {{ errorMessage }}
+    </p>
   </section>
 </template>
 
@@ -25,7 +56,7 @@
 <script>
 import { mapActions } from 'vuex';
 export default {
-  name: 'Register',
+  name: 'RegisterItem',
   data() {
     return {
       user: {

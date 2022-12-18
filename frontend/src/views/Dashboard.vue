@@ -5,39 +5,57 @@
       <hr
         class="some-class"
       >
-      <br />
+      <br>
       <form @submit.prevent="submit">
         <div class="mb-3">
-          <label for="title" class="form-label">Title:</label>
+          <label
+            for="title"
+            class="form-label"
+          >Title:</label>
           <input
-            type="text"
             v-model="form.title"
+            type="text"
             name="title"
             class="form-control"
-          />
+          >
         </div>
         <div class="mb-3">
-          <label for="content" class="form-label">Content:</label>
+          <label
+            for="content"
+            class="form-label"
+          >Content:</label>
           <textarea
-            name="content"
             v-model="form.content"
+            name="content"
             class="form-control"
           />
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Submit
+        </button>
       </form>
     </section>
-    <br />
-    <br />
+    <br>
+    <br>
     <section>
       <h1>Notes</h1>
       <hr
         class="some-class"
       >
-      <br />
+      <br>
       <div v-if="notes.length">
-        <div v-for="note in notes" v-bind:key="note.id" class="notes">
-          <div class="card" style="width: 18rem">
+        <div
+          v-for="note in notes"
+          :key="note.id"
+          class="notes"
+        >
+          <div
+            class="card"
+            style="width: 18rem"
+          >
             <div class="card-body">
               <ul>
                 <li><strong>Note Title:</strong> {{ note.title }}</li>
@@ -46,7 +64,7 @@
               </ul>
             </div>
           </div>
-          <br />
+          <br>
         </div>
       </div>
       <div v-else>
@@ -59,7 +77,7 @@
 <script>
   import { mapGetters, mapActions } from "vuex";
   export default {
-    name: "Dashboard",
+    name: "DashboardItem",
     data() {
       return {
         form: {
@@ -67,9 +85,6 @@
           content: "",
         },
       };
-    },
-    created: function () {
-      return this.$store.dispatch("getNotes");
     },
     computed: {
       ...mapGetters({ notes: "stateNotes" }),
@@ -86,6 +101,9 @@
         },
         deep: true,
       },
+    },     
+    created: function () {
+      return this.$store.dispatch("getNotes");
     },
     methods: {
       ...mapActions(["createNote"]),

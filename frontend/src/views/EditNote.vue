@@ -1,22 +1,38 @@
 <template>
   <section>
     <h1>Edit note</h1>
-    <hr/><br/>
+    <hr><br>
 
     <form @submit.prevent="submit">
       <div class="mb-3">
-        <label for="title" class="form-label">Title:</label>
-        <input type="text" name="title" v-model="form.title" class="form-control" />
+        <label
+          for="title"
+          class="form-label"
+        >Title:</label>
+        <input
+          v-model="form.title"
+          type="text"
+          name="title"
+          class="form-control"
+        >
       </div>
       <div class="mb-3">
-        <label for="content" class="form-label">Content:</label>
+        <label
+          for="content"
+          class="form-label"
+        >Content:</label>
         <textarea
-          name="content"
           v-model="form.content"
+          name="content"
           class="form-control"
-        ></textarea>
+        />
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Submit
+      </button>
     </form>
   </section>
 </template>
@@ -34,11 +50,11 @@ export default {
       },
     };
   },
-  created: function() {
-    this.GetNote();
-  },
   computed: {
     ...mapGetters({ note: 'stateNote' }),
+  },  
+  created: function() {
+    this.GetNote();
   },
   methods: {
     ...mapActions(['updateNote', 'viewNote']),

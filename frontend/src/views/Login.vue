@@ -2,14 +2,35 @@
   <section>
     <form @submit.prevent="submit">
       <div class="mb-3">
-        <label for="username" class="form-label">Username:</label>
-        <input type="text" name="username" v-model="form.username" class="form-control" />
+        <label
+          for="username"
+          class="form-label"
+        >Username:</label>
+        <input
+          v-model="form.username"
+          type="text"
+          name="username"
+          class="form-control"
+        >
       </div>
       <div class="mb-3">
-        <label for="password" class="form-label">Password:</label>
-        <input type="password" name="password" v-model="form.password" class="form-control" />
+        <label
+          for="password"
+          class="form-label"
+        >Password:</label>
+        <input
+          v-model="form.password"
+          type="password"
+          name="password"
+          class="form-control"
+        >
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Submit
+      </button>
     </form>
   </section>
 </template>
@@ -17,7 +38,7 @@
 <script>
 import { mapActions } from 'vuex';
 export default {
-  name: 'Login',
+  name: 'LoginItem',
   data() {
     return {
       form: {

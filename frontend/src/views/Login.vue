@@ -50,11 +50,16 @@ export default {
   methods: {
     ...mapActions(['logIn']),
     async submit() {
-      const User = new FormData();
-      User.append('username', this.form.username);
-      User.append('password', this.form.password);
-      await this.logIn(User);
-      this.$router.push('/dashboard');
+      try {
+        const User = new FormData();
+        User.append('username', this.form.username);
+        User.append('password', this.form.password);
+        await this.logIn(User);
+        this.$router.push('/dashboard');
+      } catch (e) {
+        // exception handling code
+        console.error(e);
+      }
     }
   }
 }

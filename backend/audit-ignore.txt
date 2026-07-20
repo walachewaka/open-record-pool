@@ -1,0 +1,28 @@
+# Accepted pip-audit advisories for the backend pins (MOO-89).
+#
+# One advisory id per line (e.g. GHSA-xxxx-xxxx-xxxx or PYSEC-YYYY-NNN). Every
+# id listed here MUST also have a row in the SECURITY.md triage table with a
+# rationale. Lines starting with '#' are comments.
+#
+# Empty by default: the gate is strict. When `pip-audit` (Docker build or
+# ./sh_audit.sh) flags a high/critical advisory the team accepts, add its id
+# here AND a SECURITY.md triage row. Re-run and shrink this list whenever pins
+# move (FastAPI/runtime upgrades are tracked by MOO-77).
+# --- MOO-79 triage (see SECURITY.md table for rationales) ---
+# starlette 0.19.1 (frozen by the fastapi<0.100/pydantic-v1 pin):
+GHSA-wqp7-x3pw-xc5r
+GHSA-x746-7m8f-x49c
+PYSEC-2023-48
+PYSEC-2023-83
+PYSEC-2026-161
+PYSEC-2026-248
+PYSEC-2026-249
+PYSEC-2026-1941
+PYSEC-2026-1943
+# fastapi 0.79.0 (underlying ReDoS fixed by the python-multipart 0.0.31 pin):
+PYSEC-2024-38
+# pyjwt 2.13.0 (disputed, no fixed release exists):
+PYSEC-2025-183
+# black 22.10.0 (build-time formatter on first-party source only):
+PYSEC-2024-48
+GHSA-3936-cmfr-pm3m

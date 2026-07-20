@@ -1,0 +1,6 @@
+# Accepted npm-audit advisories for the frontend deps (MOO-89).
+#
+# One GHSA/advisory id per line. Every id listed here MUST also have a row in
+# the SECURITY.md triage table with a rationale. Lines starting with '#' are
+# comments. Empty by default: the gate (frontend/audit-gate.js, run by
+# ./sh_audit.sh) fails on any un-accepted high/critical advisory.

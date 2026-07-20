@@ -1,0 +1,20 @@
+# Telemetry datasource, provisioned as code (MOO-83). Not editable in the UI:
+# the dashboards below reference it by uid, and a hand-edit would break them on
+# the next container rebuild anyway.
+apiVersion: 1
+
+datasources:
+  - name: ORP Events
+    uid: orp-es-events
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    isDefault: true
+    editable: false
+    jsonData:
+      index: "orp-events-*"
+      timeField: "@timestamp"
+      # Monthly indices (orp-events-YYYY.MM), so Grafana only queries the ones
+      # inside the selected time range.
+      interval: Monthly
+      maxConcurrentShardRequests: 5

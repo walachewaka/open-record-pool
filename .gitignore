@@ -1,3 +1,21 @@
-.*.swp
-*~
+# Local compose override (holds host-specific /music bind).
 docker-compose.override.yml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node / frontend build
+node_modules/
+frontend/dist/
+
+# Env / secrets
+.env
+*.local
+
+# OS
+.DS_Store
+Thumbs.db

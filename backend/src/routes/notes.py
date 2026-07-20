@@ -74,4 +74,3 @@ async def delete_note(
     note_id: int, current_user: UserOutSchema = Depends(get_current_user)
 ):
     return await crud.delete_note(note_id, current_user)
-

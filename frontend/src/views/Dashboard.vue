@@ -46,7 +46,7 @@
         class="some-class"
       >
       <br>
-      <div v-if="notes.length">
+      <div v-if="notes && notes.length">
         <div
           v-for="note in notes"
           :key="note.id"

@@ -1,0 +1,269 @@
+/*
+ * CRATE design system — global tokens and app-shell chrome.
+ * Source of truth: the CRATE design handoff README (GH #14).
+ * `--acc` is the single themable accent token; everything accent-coloured
+ * derives from it (ink-on-accent + soft fills via color-mix).
+ */
+
+:root {
+  /* Accent (themable) */
+  --acc: #17b9ff;
+  --acc-ink: #04121b;
+  --acc-soft: color-mix(in oklab, var(--acc) 14%, transparent);
+  --acc-soft-strong: color-mix(in oklab, var(--acc) 18%, transparent);
+  --acc-border: color-mix(in oklab, var(--acc) 40%, transparent);
+
+  /* Surfaces */
+  --bg: #0a0d12;
+  --panel: #0c0f14;
+  --raised: #0d1116;
+  --sunken: #0b0f14;
+  --menu: #12171e;
+  --modal: #0f141b;
+  --card: #0d1117;
+
+  /* Hairlines & overlays */
+  --line: rgba(255, 255, 255, .06);
+  --line-strong: rgba(255, 255, 255, .10);
+  --hover: rgba(255, 255, 255, .05);
+
+  /* Text tiers */
+  --txt: #e9eef4;
+  --txt-2: #c6cdd6;
+  --txt-3: #aeb7c2;
+  --muted: #8b96a4;
+  --dim: #7a8492;
+  --dim-2: #5f6975;
+  --dim-3: #4d5561;
+
+  /* Semantic */
+  --key: #9d8bff;
+  --key-bright: #b6a8ff;
+  --ok: #35d07a;
+  --warn: #ffb62e;
+  --danger: #ff5266;
+
+  /* Cover / avatar tints (dark duotones) */
+  --tint-1: #3b2d5c;
+  --tint-2: #123a4d;
+  --tint-3: #4d1f2e;
+  --tint-4: #1f4030;
+  --tint-5: #3d3410;
+  --tint-6: #26304f;
+  --tint-7: #4a2c14;
+  --tint-8: #173a3a;
+  --tint-9: #40213f;
+  --tint-10: #1b2b3d;
+
+  /* Type */
+  --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-disp: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+
+  /* Radii */
+  --r-ctl: 9px;
+  --r-panel: 12px;
+  --r-modal: 16px;
+  --r-pill: 999px;
+
+  /* Spacing */
+  --pad-content: 24px;
+  --pad-card: 18px;
+  --gap: 12px;
+
+  /* Shadows */
+  --shadow-overlay: 0 18px 48px rgba(0, 0, 0, .55);
+  --shadow-cover: inset 0 0 0 1px rgba(255, 255, 255, .09);
+  --shadow-brand: 0 4px 14px color-mix(in oklab, var(--acc) 40%, transparent);
+
+  /* Metrics */
+  --rowh: 50px;
+  --sidebar-w: 236px;
+  --topbar-h: 58px;
+  --player-h: 78px;
+}
+
+/* Row density: dense (default, 50px) / comfortable (62px). */
+[data-density='comfortable'] {
+  --rowh: 62px;
+}
+
+/* ---------- Global chrome ---------- */
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--txt);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+a {
+  color: var(--acc);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--txt);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--acc) 45%, transparent);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .13);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .22);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes eqp {
+  0%,
+  100% { transform: scaleY(.28); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes toastin {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- App shell layout ---------- */
+
+.crate-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.crate-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.crate-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.crate-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--pad-content) 26px;
+}
+
+/* Logged-out public routes (home, register, login gate) rendered without the shell. */
+.crate-public {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.crate-public > section {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 26px;
+}
+
+/* ---------- Legacy (Bootstrap) views inside the dark shell ---------- */
+
+:is(.crate-content, .crate-public) h1 {
+  font-family: var(--font-disp);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+:is(.crate-content, .crate-public) hr {
+  border-color: var(--line-strong);
+}
+
+:is(.crate-content, .crate-public) .table {
+  color: var(--txt-2);
+  border-color: var(--line-strong);
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--txt-2);
+  --bs-table-striped-bg: rgba(255, 255, 255, .03);
+  --bs-table-striped-color: var(--txt-2);
+}
+
+:is(.crate-content, .crate-public) .form-control,
+:is(.crate-content, .crate-public) .form-select {
+  background: var(--raised);
+  border-color: var(--line-strong);
+  color: var(--txt);
+}
+
+:is(.crate-content, .crate-public) .form-control::placeholder {
+  color: var(--dim-2);
+}
+
+:is(.crate-content, .crate-public) .form-control:focus {
+  background: var(--raised);
+  color: var(--txt);
+  border-color: var(--acc-border);
+  box-shadow: 0 0 0 3px var(--acc-soft);
+}
+
+:is(.crate-content, .crate-public) .btn-primary {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--acc-ink);
+  font-weight: 600;
+}
+
+:is(.crate-content, .crate-public) .btn-outline-secondary,
+:is(.crate-content, .crate-public) .btn-outline-primary {
+  color: var(--txt-2);
+  border-color: var(--line-strong);
+}
+
+:is(.crate-content, .crate-public) .btn-outline-secondary:hover,
+:is(.crate-content, .crate-public) .btn-outline-primary:hover {
+  background: var(--hover);
+  border-color: var(--acc-border);
+  color: var(--txt);
+}
+
+:is(.crate-content, .crate-public) .card {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--txt-2);
+}

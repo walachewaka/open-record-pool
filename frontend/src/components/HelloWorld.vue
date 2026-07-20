@@ -8,11 +8,14 @@
 import axios from 'axios';
 
 export default {
-  name: 'Ping',
+  name: 'PingItem',
   data() {
     return {
       msg: '',
     };
+  },
+  created() {
+    this.getMessage();
   },
   methods: {
     getMessage() {
@@ -24,9 +27,6 @@ export default {
           console.error(error);
         });
     },
-  },
-  created() {
-    this.getMessage();
   },
 };
 </script>

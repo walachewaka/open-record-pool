@@ -1,75 +1,338 @@
-# Base file for Docker Compose
+# open-record-pool — dev/demo compose stack.
 #
-# In a local test environment, the docker-compose.override.yml will
-# also be loaded, and override some settings of this file.
-# It's also possible to use the -f option of Docker Compose to select which files to use.
+# RECONSTRUCTED during the MOO-95 salvage from `docker inspect` of the 8 running
+# containers (compose-inspect.json) + the repo CLAUDE.md. Ports, env, mounts,
+# commands and the ES healthcheck mirror the live stack. The original committed
+# docker-compose.yml was lost with the GC-deleted workdir.
+#
+# All published ports bind 127.0.0.1 only — keep it that way (GH #36).
+# DB password / SECRET_KEY below are the well-known DEV defaults that were baked
+# into the running dev stack; rotate them for any real deployment.
 
+services:
+  backend:
+    build:
+      context: ./backend
+    image: backend
+    entrypoint: ["./docker-entrypoint.sh"]
+    command: ["uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "5000"]
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      DATABASE_URL: postgres://recordpool:Kae4Apho@db:5432/recordpooldb?minsize=1&maxsize=20
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      SECRET_KEY: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      ORP_ENV: dev
+      COOKIE_SECURE: auto
+      ADMIN_USERNAME: admin
+      SESSION_ABSOLUTE_HOURS: "12"
+      DOWNLOAD_QUOTA_MONTHLY: "100"
+      ALLOW_ORIGINS: http://localhost:8088
+      WORKERS_ENABLED: "true"
+      LIBRARY_PATH: /library
+      UPLOAD_PATH: /uploads
+      # Single sign-on (MOO-88). With OIDC_PROVIDERS empty the pool is pure
+      # local auth, exactly as before. See docs/SSO.md for the per-provider
+      # blocks (Entra ID, Google, Google Workspace, Okta) and .env.example.
+      PUBLIC_BACKEND_URL: ${PUBLIC_BACKEND_URL:-http://localhost:5000}
+      PUBLIC_FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:8088}
+      LOCAL_LOGIN_ENABLED: ${LOCAL_LOGIN_ENABLED:-true}
+      OIDC_EMAIL_AUTOLINK: ${OIDC_EMAIL_AUTOLINK:-false}
+      OIDC_PROVIDERS: ${OIDC_PROVIDERS:-}
+      OIDC_ENTRA_ISSUER: ${OIDC_ENTRA_ISSUER:-}
+      OIDC_ENTRA_DISCOVERY_URL: ${OIDC_ENTRA_DISCOVERY_URL:-}
+      OIDC_ENTRA_CLIENT_ID: ${OIDC_ENTRA_CLIENT_ID:-}
+      OIDC_ENTRA_CLIENT_SECRET: ${OIDC_ENTRA_CLIENT_SECRET:-}
+      OIDC_ENTRA_DISPLAY_NAME: ${OIDC_ENTRA_DISPLAY_NAME:-Microsoft}
+      OIDC_ENTRA_PROVISIONING: ${OIDC_ENTRA_PROVISIONING:-closed}
+      OIDC_ENTRA_ALLOWED_DOMAINS: ${OIDC_ENTRA_ALLOWED_DOMAINS:-}
+      OIDC_GOOGLE_ISSUER: ${OIDC_GOOGLE_ISSUER:-}
+      OIDC_GOOGLE_CLIENT_ID: ${OIDC_GOOGLE_CLIENT_ID:-}
+      OIDC_GOOGLE_CLIENT_SECRET: ${OIDC_GOOGLE_CLIENT_SECRET:-}
+      OIDC_GOOGLE_DISPLAY_NAME: ${OIDC_GOOGLE_DISPLAY_NAME:-Google}
+      OIDC_GOOGLE_PROVISIONING: ${OIDC_GOOGLE_PROVISIONING:-closed}
+      OIDC_WORKSPACE_ISSUER: ${OIDC_WORKSPACE_ISSUER:-}
+      OIDC_WORKSPACE_CLIENT_ID: ${OIDC_WORKSPACE_CLIENT_ID:-}
+      OIDC_WORKSPACE_CLIENT_SECRET: ${OIDC_WORKSPACE_CLIENT_SECRET:-}
+      OIDC_WORKSPACE_DISPLAY_NAME: ${OIDC_WORKSPACE_DISPLAY_NAME:-Google Workspace}
+      OIDC_WORKSPACE_PROVISIONING: ${OIDC_WORKSPACE_PROVISIONING:-closed}
+      OIDC_WORKSPACE_ALLOWED_DOMAINS: ${OIDC_WORKSPACE_ALLOWED_DOMAINS:-}
+      OIDC_OKTA_ISSUER: ${OIDC_OKTA_ISSUER:-}
+      OIDC_OKTA_CLIENT_ID: ${OIDC_OKTA_CLIENT_ID:-}
+      OIDC_OKTA_CLIENT_SECRET: ${OIDC_OKTA_CLIENT_SECRET:-}
+      OIDC_OKTA_DISPLAY_NAME: ${OIDC_OKTA_DISPLAY_NAME:-Okta}
+      OIDC_OKTA_PROVISIONING: ${OIDC_OKTA_PROVISIONING:-closed}
+      OIDC_OKTA_ALLOWED_DOMAINS: ${OIDC_OKTA_ALLOWED_DOMAINS:-}
+      # Music download engine (MOO-78). All optional; none has a default.
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
+      SOUNDCLOUD_AUTH_TOKEN: ${SOUNDCLOUD_AUTH_TOKEN:-}
+      YTDLP_COOKIES_FILE: ${YTDLP_COOKIES_FILE:-}
+      DOWNLOAD_TIMEOUT_SECONDS: "900"
+      DOWNLOAD_MAX_FILE_MB: "200"
+      DOWNLOAD_PROVIDER_CONCURRENCY: "2"
+      DOWNLOAD_PROVIDER_DELAY_SECONDS: "10"
+      # Beatport API v4 metadata enrichment (MOO-85). Real access requires an
+      # approved Beatport partner application (https://api.beatport.com/v4/docs/);
+      # until credentials are supplied, set BEATPORT_MOCK=true to exercise the
+      # whole feature with deterministic fixture data (zero network/creds).
+      BEATPORT_MOCK: ${BEATPORT_MOCK:-false}
+      BEATPORT_ENABLED: ${BEATPORT_ENABLED:-}
+      BEATPORT_CLIENT_ID: ${BEATPORT_CLIENT_ID:-}
+      BEATPORT_CLIENT_SECRET: ${BEATPORT_CLIENT_SECRET:-}
+      BEATPORT_API_BASE: ${BEATPORT_API_BASE:-https://api.beatport.com/v4}
+      BEATPORT_RATE_LIMIT_RPS: ${BEATPORT_RATE_LIMIT_RPS:-2}
+      BEATPORT_CACHE_TTL_HOURS: ${BEATPORT_CACHE_TTL_HOURS:-720}
+      BEATPORT_BACKFILL_BUDGET_PER_HOUR: ${BEATPORT_BACKFILL_BUDGET_PER_HOUR:-3600}
+      BEATPORT_TIMEOUT_SECONDS: ${BEATPORT_TIMEOUT_SECONDS:-15}
+      BEATPORT_AUTO_APPLY_THRESHOLD: ${BEATPORT_AUTO_APPLY_THRESHOLD:-0.85}
+      BEATPORT_REVIEW_THRESHOLD: ${BEATPORT_REVIEW_THRESHOLD:-0.60}
+      # Artist follows / release tracking (MOO-80). RELEASE_SOURCE_MOCK is a
+      # dev/test-only switch (deterministic fixtures, source="mock") -- keep
+      # it false everywhere else; the real source is Beatport (above), mock
+      # mode included.
+      RELEASE_SOURCE_MOCK: ${RELEASE_SOURCE_MOCK:-false}
+      RELEASE_POLL_INTERVAL_MINUTES: ${RELEASE_POLL_INTERVAL_MINUTES:-360}
+      RELEASE_POLL_BATCH: ${RELEASE_POLL_BATCH:-25}
+      RELEASE_POLL_DELAY_SECONDS: ${RELEASE_POLL_DELAY_SECONDS:-1.0}
+      RELEASE_LOOKBACK_DAYS: ${RELEASE_LOOKBACK_DAYS:-120}
+      RELEASE_BACKOFF_STALE_DAYS: ${RELEASE_BACKOFF_STALE_DAYS:-180}
+      RELEASE_BACKOFF_MULTIPLIER: ${RELEASE_BACKOFF_MULTIPLIER:-4}
+      # DJ crate export (MOO-86): bundles live under /library/export/<job_id>
+      # and are swept by the worker's cleanup_exports cron once they expire.
+      EXPORT_TTL_HOURS: ${EXPORT_TTL_HOURS:-24}
+      EXPORT_MAX_TRACKS: ${EXPORT_MAX_TRACKS:-1000}
+      # Telemetry pipeline (MOO-83). Events go to the same ES cluster as search,
+      # into monthly orp-events-YYYY.MM indices. TELEMETRY_LEVEL is the operator
+      # consent knob: off | basic (no api.request, no raw search strings) |
+      # detailed. Nothing here can slow or fail a user request.
+      TELEMETRY_ENABLED: ${TELEMETRY_ENABLED:-true}
+      TELEMETRY_LEVEL: ${TELEMETRY_LEVEL:-detailed}
+      TELEMETRY_BUFFER_MAX: ${TELEMETRY_BUFFER_MAX:-5000}
+      TELEMETRY_FLUSH_INTERVAL_SECONDS: ${TELEMETRY_FLUSH_INTERVAL_SECONDS:-2}
+      TELEMETRY_FLUSH_MAX_BATCH: ${TELEMETRY_FLUSH_MAX_BATCH:-500}
+      TELEMETRY_API_SAMPLE_RATE: ${TELEMETRY_API_SAMPLE_RATE:-0.1}
+      TELEMETRY_RETENTION_DAYS: ${TELEMETRY_RETENTION_DAYS:-180}
+      GRAFANA_URL: http://grafana:3000
+    volumes:
+      - music-data:/music:ro
+      - uploads-data:/uploads
+      - library-data:/library
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
 
-version: "3.7"
+  worker:
+    image: backend
+    entrypoint: ["./docker-entrypoint-worker.sh"]
+    command: ["arq", "src.worker.WorkerSettings"]
+    environment:
+      DATABASE_URL: postgres://recordpool:Kae4Apho@db:5432/recordpooldb?minsize=1&maxsize=20
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      WORKERS_ENABLED: "true"
+      WORKER_CONCURRENCY: "10"
+      LIBRARY_PATH: /library
+      UPLOAD_PATH: /uploads
+      # Beatport enrichment (MOO-85): scan_library runs here and reads the
+      # provider tri-state to decide whether to auto-enqueue enrich_song.
+      BEATPORT_MOCK: ${BEATPORT_MOCK:-false}
+      BEATPORT_ENABLED: ${BEATPORT_ENABLED:-}
+      BEATPORT_CLIENT_ID: ${BEATPORT_CLIENT_ID:-}
+      BEATPORT_CLIENT_SECRET: ${BEATPORT_CLIENT_SECRET:-}
+      # Artist follows / release tracking (MOO-80): the poll_release_sources
+      # and sync_artists_from_library cron jobs run here.
+      RELEASE_SOURCE_MOCK: ${RELEASE_SOURCE_MOCK:-false}
+      RELEASE_POLL_INTERVAL_MINUTES: ${RELEASE_POLL_INTERVAL_MINUTES:-360}
+      RELEASE_POLL_BATCH: ${RELEASE_POLL_BATCH:-25}
+      RELEASE_POLL_DELAY_SECONDS: ${RELEASE_POLL_DELAY_SECONDS:-1.0}
+      RELEASE_LOOKBACK_DAYS: ${RELEASE_LOOKBACK_DAYS:-120}
+      RELEASE_BACKOFF_STALE_DAYS: ${RELEASE_BACKOFF_STALE_DAYS:-180}
+      RELEASE_BACKOFF_MULTIPLIER: ${RELEASE_BACKOFF_MULTIPLIER:-4}
+      # DJ crate export (MOO-86): export_crate runs here, and so does the
+      # cleanup_exports TTL cron.
+      EXPORT_TTL_HOURS: ${EXPORT_TTL_HOURS:-24}
+      EXPORT_MAX_TRACKS: ${EXPORT_MAX_TRACKS:-1000}
+      # Telemetry (MOO-83): this tier emits job.finished and runs the 60s
+      # audit-log -> ES shipper cron, so it needs its own buffer + flush loop.
+      TELEMETRY_ENABLED: ${TELEMETRY_ENABLED:-true}
+      TELEMETRY_LEVEL: ${TELEMETRY_LEVEL:-detailed}
+      TELEMETRY_BUFFER_MAX: ${TELEMETRY_BUFFER_MAX:-5000}
+      TELEMETRY_FLUSH_INTERVAL_SECONDS: ${TELEMETRY_FLUSH_INTERVAL_SECONDS:-2}
+      TELEMETRY_FLUSH_MAX_BATCH: ${TELEMETRY_FLUSH_MAX_BATCH:-500}
+      TELEMETRY_RETENTION_DAYS: ${TELEMETRY_RETENTION_DAYS:-180}
+    volumes:
+      - music-data:/music:ro
+      - uploads-data:/uploads
+      - library-data:/library
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+
+  worker-heavy:
+    image: backend
+    entrypoint: ["./docker-entrypoint-worker.sh"]
+    command: ["arq", "src.worker_heavy.WorkerSettings"]
+    environment:
+      DATABASE_URL: postgres://recordpool:Kae4Apho@db:5432/recordpooldb?minsize=1&maxsize=20
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      WORKERS_ENABLED: "true"
+      ANALYZER_NICE: "10"
+      ANALYZER_MAX_MEM_MB: "512"
+      ANALYZE_BACKFILL_WINDOW: "200"
+      NUMBA_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      LIBRARY_PATH: /library
+      UPLOAD_PATH: /uploads
+      # Music download engine (MOO-78): fetch_track runs on the heavy tier.
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
+      SOUNDCLOUD_AUTH_TOKEN: ${SOUNDCLOUD_AUTH_TOKEN:-}
+      YTDLP_COOKIES_FILE: ${YTDLP_COOKIES_FILE:-}
+      DOWNLOAD_TIMEOUT_SECONDS: "900"
+      DOWNLOAD_MAX_FILE_MB: "200"
+      DOWNLOAD_PROVIDER_CONCURRENCY: "2"
+      DOWNLOAD_PROVIDER_DELAY_SECONDS: "10"
+      # Beatport API v4 metadata enrichment (MOO-85): enrich_song/enrich_library/
+      # enrichment_manual_search all run here (orp:heavy) and make the actual
+      # outbound calls. See the backend service block above for the partner-
+      # application note.
+      BEATPORT_MOCK: ${BEATPORT_MOCK:-false}
+      BEATPORT_ENABLED: ${BEATPORT_ENABLED:-}
+      BEATPORT_CLIENT_ID: ${BEATPORT_CLIENT_ID:-}
+      BEATPORT_CLIENT_SECRET: ${BEATPORT_CLIENT_SECRET:-}
+      BEATPORT_API_BASE: ${BEATPORT_API_BASE:-https://api.beatport.com/v4}
+      BEATPORT_RATE_LIMIT_RPS: ${BEATPORT_RATE_LIMIT_RPS:-2}
+      BEATPORT_CACHE_TTL_HOURS: ${BEATPORT_CACHE_TTL_HOURS:-720}
+      BEATPORT_BACKFILL_BUDGET_PER_HOUR: ${BEATPORT_BACKFILL_BUDGET_PER_HOUR:-3600}
+      BEATPORT_TIMEOUT_SECONDS: ${BEATPORT_TIMEOUT_SECONDS:-15}
+      BEATPORT_AUTO_APPLY_THRESHOLD: ${BEATPORT_AUTO_APPLY_THRESHOLD:-0.85}
+      BEATPORT_REVIEW_THRESHOLD: ${BEATPORT_REVIEW_THRESHOLD:-0.60}
+      # Telemetry (MOO-83): the heavy tier emits job.finished for downloads,
+      # analysis and enrichment jobs.
+      TELEMETRY_ENABLED: ${TELEMETRY_ENABLED:-true}
+      TELEMETRY_LEVEL: ${TELEMETRY_LEVEL:-detailed}
+      TELEMETRY_BUFFER_MAX: ${TELEMETRY_BUFFER_MAX:-5000}
+      TELEMETRY_FLUSH_INTERVAL_SECONDS: ${TELEMETRY_FLUSH_INTERVAL_SECONDS:-2}
+      TELEMETRY_FLUSH_MAX_BATCH: ${TELEMETRY_FLUSH_MAX_BATCH:-500}
+      TELEMETRY_RETENTION_DAYS: ${TELEMETRY_RETENTION_DAYS:-180}
+    volumes:
+      - music-data:/music:ro
+      - uploads-data:/uploads
+      - library-data:/library
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+
+  frontend:
+    build:
+      context: ./frontend
+    image: frontend
+    ports:
+      - "127.0.0.1:8088:8080"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:14
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB
+      - -c
+      - work_mem=32MB
+      - -c
+      - maintenance_work_mem=256MB
+    environment:
+      POSTGRES_DB: recordpooldb
+      POSTGRES_USER: recordpool
+      POSTGRES_PASSWORD: Kae4Apho
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "127.0.0.1:9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  grafana:
+    image: grafana/grafana-oss:11.1.0
+    restart: "unless-stopped"
+    # Telemetry dashboards (MOO-83). Deliberately NOT published -- not even on
+    # 127.0.0.1. With auth.proxy on, ANY process that can reach this port can
+    # impersonate any user by setting X-WEBAUTH-USER, so publishing it would
+    # hand out admin. The only supported way in is the authenticated backend
+    # proxy at /admin/grafana/, which strips client X-WEBAUTH-* headers and
+    # gates on the view_reports permission.
+    expose:
+      - "3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-grafana-dev}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:5000/admin/grafana/}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_PROXY_ENABLED: "true"
+      GF_AUTH_PROXY_HEADER_NAME: X-WEBAUTH-USER
+      GF_AUTH_PROXY_HEADER_PROPERTY: username
+      GF_AUTH_PROXY_AUTO_SIGN_UP: "true"
+      GF_AUTH_PROXY_HEADERS: Role:X-WEBAUTH-ROLE
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_AUTO_ASSIGN_ORG_ROLE: Viewer
+      GF_USERS_DEFAULT_THEME: dark
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      # Grafana Live websockets are not proxied; panels poll over plain HTTP.
+      GF_LIVE_MAX_CONNECTIONS: "0"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - elasticsearch
+
+  adminer:
+    image: adminer:4-standalone
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:8087:8080"
+    volumes:
+      - ./adminer/plugins-enabled:/var/www/html/plugins-enabled:ro
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
-
+  redis-data:
+  es-data:
+  grafana-data:
   music-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /tmp/music
-
-services:
-  # The frontend service:
-  frontend:
-    build: ./frontend
-    image: frontend
-    depends_on:
-      - backend
-    restart: "unless-stopped"
-    # volumes: # To ease the development, we mount some local frontend directories as volumes:
-    #   - './frontend/src:/app/src'
-    #   - './frontend/public:/app/public'
-    environment:
-      # You can override the URL for the backend, as seen from the frontend, in your docker-compose.override.yml
-      - VUE_APP_BACKEND_URL=http://localhost:5000/
-    ports:
-      - 8088:8080
-
-  # The backend service:
-  backend:
-    build: ./backend
-    image: backend
-    depends_on:
-      - db
-    restart: "unless-stopped"
-    # We need to specify the command to run inside the container:
-    command: uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
-    environment:
-      - DATABASE_URL=postgres://recordpool:Kae4Apho@db:5432/recordpooldb
-      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-      # This is typically overriden in docker-compose.override.yml:
-      - ALLOW_ORIGINS=http://localhost:8088
-    ports:
-      - 5000:5000
-
-  # The PostgreSQL database:
-  db:
-    image: postgres:14
-    restart: "unless-stopped"
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=recordpool
-      - POSTGRES_PASSWORD=Kae4Apho
-      - POSTGRES_DB=recordpooldb
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-
-  # A tool to administer the database: (optional)
-  adminer:
-    image: adminer:4-standalone
-    restart: "unless-stopped"
-    depends_on:
-      - db
-    # Ports can be exposed in docker-compose.override.yml
-    # ports:
-    #   - "8087:8080"
+  uploads-data:
+  library-data:

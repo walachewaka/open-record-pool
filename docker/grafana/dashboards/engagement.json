@@ -1,0 +1,201 @@
+{
+  "uid": "orp-engagement",
+  "title": "Engagement",
+  "tags": ["orp"],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "style": "dark",
+  "timezone": "browser",
+  "time": { "from": "now-30d", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Daily active users",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "_exists_:user_id",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "user_id" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1d", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Logins (success / failure)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:auth.login",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "success",
+              "settings": { "size": "2", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Searches (total vs zero-result)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "alias": "searches",
+          "query": "event:search.query",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        },
+        {
+          "refId": "B",
+          "alias": "zero results",
+          "query": "event:search.query AND zero_results:true",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Top zero-result queries (the gap list)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:search.query AND zero_results:true",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "query.raw",
+              "settings": { "size": "20", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "barchart",
+      "title": "Song request funnel",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:request.*",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "event",
+              "settings": { "size": "6", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "bargauge",
+      "title": "Crate exports by format",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "options": {
+        "displayMode": "gradient",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:export.crate",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "format",
+              "settings": { "size": "6", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "barchart",
+      "title": "Top listeners",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "username",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

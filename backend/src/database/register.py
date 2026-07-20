@@ -13,6 +13,7 @@ def register_tortoise(
     """
     Function to register the tortoise database ORM into our FastAPI app.
     """
+
     @app.on_event("startup")
     async def init_orm():
         await Tortoise.init(config=config)
@@ -22,4 +23,3 @@ def register_tortoise(
     @app.on_event("shutdown")
     async def close_orm():
         await Tortoise.close_connections()
-

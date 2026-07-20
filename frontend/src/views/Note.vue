@@ -30,7 +30,12 @@
 import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'NoteItem',
-  props: ['id'],
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     ...mapGetters({ note: 'stateNote', user: 'stateUser'}),
   },  

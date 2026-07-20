@@ -1,0 +1,237 @@
+{
+  "uid": "orp-system",
+  "title": "System",
+  "tags": ["orp"],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "style": "dark",
+  "timezone": "browser",
+  "time": { "from": "now-24h", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Job throughput by kind",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": {
+        "defaults": { "custom": { "stacking": { "mode": "normal" } } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:job.finished",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "job_kind",
+              "settings": { "size": "15", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Job duration p50 / p95",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:job.finished",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "duration_ms",
+              "settings": { "percents": ["50", "95"] }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Job failures",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:job.finished AND job_status:failed",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "job_kind",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Recent job failures",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:job.finished AND job_status:failed",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "raw_data",
+              "settings": { "size": "20" }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "API latency p50 / p95 (sampled)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:api.request",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "duration_ms",
+              "settings": { "percents": ["50", "95"] }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "API 5xx",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:api.request AND status_code:[500 TO 599]",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "barchart",
+      "title": "Slowest routes (p95, sampled)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:api.request",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "duration_ms",
+              "settings": { "percents": ["95"] }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "route",
+              "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Telemetry ingest rate (all events)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "*",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1m", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

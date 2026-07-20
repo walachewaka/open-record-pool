@@ -1,0 +1,27 @@
+# TEMPORARY -- QA checkpoint 2 (MOO-92). A local Dex OIDC provider used to
+# exercise the MOO-88 SSO flow (no real Entra/Google/Okta client registrations
+# exist for this pool). Delete with docker-compose.override.yml after the run.
+issuer: http://dex-oidc:5556/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  - id: orp-qa-client
+    secret: orp-qa-secret
+    name: ORP QA
+    redirectURIs:
+      - http://localhost:5000/auth/oidc/mock/callback
+
+enablePasswordDB: true
+staticPasswords:
+  - email: qa.sso@example.com
+    hash: "$2b$10$M6854e/5zW8fACwHvg.n2elR3SuSxgSL0fMenh9aGyp3jAUV24KLW"
+    username: qasso
+    userID: qa-sso-user-001

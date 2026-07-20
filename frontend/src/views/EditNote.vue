@@ -41,7 +41,12 @@
 import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'EditNote',
-  props: ['id'],
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       form: {

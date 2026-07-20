@@ -1,35 +1,22 @@
-# Example override file for Docker Compose
+# Example local override (copy to docker-compose.override.yml, which is gitignored).
 #
-# You can override some environment variables and other things from
-# you docker-compose.yml file. Simply copy this example file and modify it:
-# 
-# ```
-# cp docker-compose.override.example.yml docker-compose.override.yml
-# edit docker-compose.override.yml
-# ```
+# Points the read-only /music volume at real MP3s on the host instead of the
+# built-in fixtures. On Docker Desktop for Windows the host path must be given as
+# the Docker VM path (/run/desktop/mnt/host/c/...). See INSTALL.md.
+#
+# The owner's original (lost) override bound /music at C:\Users\spardiac\Downloads\EDM Madness.
+# Changing an existing volume's device requires `docker volume rm open-record-pool_music-data`
+# first (compose won't alter an existing volume), then a rescan.
 
-version: "3.7"
 services:
-  frontend:
-    environment:
-      # Specify the host of the backend:
-      - VUE_APP_BACKEND_URL=http://localhost:5000/
-
   backend:
-    environment:
-      # Allow the frontend to access the backend:
-      - ALLOW_ORIGINS=http://localhost:8088
-
-  adminer:
-    ports:
-      # Expose the adminer port, to ease database administration:
-      - "8087:8080"
+    volumes:
+      - music-data:/music:ro
 
 volumes:
   music-data:
+    driver: local
     driver_opts:
-      # Change this for the path to your music files:
-      o: bind
       type: none
-      device: /path/to/your/music
-
+      o: bind
+      device: /run/desktop/mnt/host/c/Users/spardiac/Downloads/EDM Madness

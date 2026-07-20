@@ -70,11 +70,15 @@ export default {
   methods: {
     ...mapActions(['register']),
     async submit() {
+      this.errorMessage = '';
       try {
         await this.register(this.user);
         this.$router.push('/dashboard');
       } catch (error) {
-        this.errorMessage = 'Username already exists. Please try again.';
+        const detail = error.response && error.response.data && error.response.data.detail;
+        this.errorMessage =
+          (typeof detail === 'string' && detail) ||
+          'Registration failed. Please try again.';
       }
     },
   },

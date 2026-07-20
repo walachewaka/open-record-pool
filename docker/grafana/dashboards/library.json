@@ -1,0 +1,179 @@
+{
+  "uid": "orp-library",
+  "title": "Library",
+  "tags": ["orp"],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "style": "dark",
+  "timezone": "browser",
+  "time": { "from": "now-90d", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Imports over time by source",
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": {
+        "defaults": { "custom": { "stacking": { "mode": "normal" } } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:import.track",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "source",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1d", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "piechart",
+      "title": "Imports by source",
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "options": {
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:import.track",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "source",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Library growth (cumulative, since telemetry started)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "transformations": [
+        { "id": "cumulativeSum", "options": { "fields": {} } }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:import.track",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1d", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Metadata enrichment applied",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:enrichment.applied",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "source",
+              "settings": { "size": "5", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1d", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "bargauge",
+      "title": "Most downloaded tracks",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 18 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "options": {
+        "displayMode": "gradient",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:download",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "song_label",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Downloads over time",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 18 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:download",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

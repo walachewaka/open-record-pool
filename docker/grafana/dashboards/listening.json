@@ -1,0 +1,242 @@
+{
+  "uid": "orp-listening",
+  "title": "Listening",
+  "tags": ["orp"],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "style": "dark",
+  "timezone": "browser",
+  "time": { "from": "now-30d", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Plays over time",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Average completion",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "decimals": 1 },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.complete OR event:play.skip",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "avg", "field": "completion_pct" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Tracks played",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "options": {
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Completed vs skipped",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.complete OR event:play.skip",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "event",
+              "settings": { "size": "2", "order": "desc", "orderBy": "_count", "min_doc_count": "0" }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "auto", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Listening time per day",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.complete OR event:play.skip",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "sum", "field": "listened_ms" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": { "interval": "1d", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "barchart",
+      "title": "Top tracks",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "song_label",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "bargauge",
+      "title": "Top genres",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "options": {
+        "displayMode": "gradient",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "genre",
+              "settings": { "size": "10", "order": "desc", "orderBy": "_count", "min_doc_count": "1" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "barchart",
+      "title": "Plays by hour of day",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "hour_of_day",
+              "settings": { "size": "24", "order": "asc", "orderBy": "_term", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "barchart",
+      "title": "Plays by day of week (0 = Monday)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 25 },
+      "datasource": { "type": "elasticsearch", "uid": "orp-es-events" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "event:play.start",
+          "timeField": "@timestamp",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "day_of_week",
+              "settings": { "size": "7", "order": "asc", "orderBy": "_term", "min_doc_count": "0" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# Dashboards as code (MOO-83): the JSON files under docker/grafana/dashboards
+# are the source of truth. UI edits are disabled so a dashboard can never drift
+# away from the repo.
+apiVersion: 1
+
+providers:
+  - name: orp
+    orgId: 1
+    folder: Open Record Pool
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

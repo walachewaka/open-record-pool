@@ -1,0 +1,40 @@
+# TEMPORARY -- QA checkpoint 2 (MOO-92) only. Delete after the QA run.
+#
+#  * ORP_FAKE_DOWNLOADS: the network-free provider adapter, so the
+#    request -> download -> ingest -> analyzer -> dedup -> ES chain can run end to
+#    end (YouTube bot-checks unauthenticated datacenter IPs, so a real yt-dlp
+#    fetch cannot complete in this environment).
+#  * dex-oidc: a local, standards-compliant OpenID Connect provider. No real
+#    Entra/Google/Okta client registrations exist for this pool, so the MOO-88
+#    SSO flow is exercised against Dex, which speaks the same protocol.
+services:
+  dex-oidc:
+    image: dexidp/dex:v2.41.1
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    volumes:
+      - ./qa/dex-config.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "127.0.0.1:5556:5556"
+
+  backend:
+    environment:
+      ORP_FAKE_DOWNLOADS: "true"
+      RELEASE_SOURCE_MOCK: "true"
+      OIDC_PROVIDERS: "mock"
+      OIDC_MOCK_ISSUER: "http://dex-oidc:5556/dex"
+      OIDC_MOCK_CLIENT_ID: "orp-qa-client"
+      OIDC_MOCK_CLIENT_SECRET: "orp-qa-secret"
+      OIDC_MOCK_DISPLAY_NAME: "QA Dex IDP"
+      OIDC_MOCK_PROVISIONING: "${OIDC_MOCK_PROVISIONING:-closed}"
+    depends_on:
+      - dex-oidc
+
+  worker:
+    environment:
+      ORP_FAKE_DOWNLOADS: "true"
+      RELEASE_SOURCE_MOCK: "true"
+
+  worker-heavy:
+    environment:
+      ORP_FAKE_DOWNLOADS: "true"
+      RELEASE_SOURCE_MOCK: "true"
